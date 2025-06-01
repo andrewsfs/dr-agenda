@@ -1,12 +1,25 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Trash } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import { toast } from "sonner";
 import z from "zod";
 
+import { deleteDoctor } from "@/actions/delete-doctor";
 import { upsertDoctor } from "@/actions/upsert-doctor";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
@@ -98,6 +111,21 @@ const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
       toast.error("Erro ao adicionar profisional.");
     },
   });
+
+  const deleteDoctorAction = useAction(deleteDoctor, {
+    onSuccess: () => {
+      toast.success("Profissional excluído com sucesso.");
+      onSuccess?.();
+    },
+    onError: () => {
+      toast.error("Erro ao excluir profissional");
+    },
+  });
+
+  const handleDeleteDoctorClick = () => {
+    if (!doctor) return;
+    deleteDoctorAction.execute({ id: doctor.id });
+  };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     upsertDoctorAction.execute({
@@ -391,6 +419,32 @@ const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
                   ? "Salvar"
                   : "Adicionar"}
             </Button>
+            {doctor && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline">
+                    <Trash />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Tem certeza que deseja excluir este registro?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Essa ação não pode ser revertida. Isso irá excluir o
+                      profissional e todas as consultas agendadas.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteDoctorClick}>
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </DialogFooter>
         </form>
       </Form>
