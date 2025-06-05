@@ -1,5 +1,10 @@
 "use client";
-import { CalendarIcon, ClockIcon, DollarSignIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  ClockIcon,
+  DollarSignIcon,
+  Edit3Icon,
+} from "lucide-react";
 import { useState } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -70,7 +75,10 @@ const DoctorsCard = ({ doctor }: DoctorsCardProps) => {
           onOpenChange={setIsUpsertDoctorDialogOpen}
         >
           <DialogTrigger asChild>
-            <Button className="w-full">Ver Detalhes</Button>
+            <Button className="w-full" variant="outline">
+              <Edit3Icon className="mr-2 h-4 w-4" />
+              Ver Detalhes
+            </Button>
           </DialogTrigger>
           <UpsertDoctorForm
             doctor={{
@@ -79,6 +87,7 @@ const DoctorsCard = ({ doctor }: DoctorsCardProps) => {
               avaliableToTime: availability.to.format("HH:mm:ss"),
             }}
             onSuccess={() => setIsUpsertDoctorDialogOpen(false)}
+            isOpen={isUpsertDoctorDialogOpen}
           />
         </Dialog>
       </CardFooter>

@@ -2,6 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -81,11 +82,16 @@ const formSchema = z
   );
 
 interface UpsertDoctorFormProps {
+  isOpen: boolean;
   doctor?: typeof doctorsTable.$inferSelect;
   onSuccess?: () => void;
 }
 
-const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
+const UpsertDoctorForm = ({
+  doctor,
+  onSuccess,
+  isOpen,
+}: UpsertDoctorFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     shouldUnregister: true,
     resolver: zodResolver(formSchema),
@@ -121,6 +127,22 @@ const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
       toast.error("Erro ao excluir profissional");
     },
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        name: doctor?.name ?? "",
+        specialty: doctor?.specialty ?? "",
+        appointmentPrice: doctor?.appointmentPriceInCents
+          ? doctor.appointmentPriceInCents / 100
+          : 0,
+        avaliableFromWeekDay: doctor?.avaliableFromWeekDay.toString() ?? "1",
+        avaliableToWeekDay: doctor?.avaliableToWeekDay.toString() ?? "5",
+        avaliableFromTime: doctor?.avaliableFromTime ?? "",
+        avaliableToTime: doctor?.avaliableToTime ?? "",
+      });
+    }
+  }, [isOpen, form, doctor]);
 
   const handleDeleteDoctorClick = () => {
     if (!doctor) return;
